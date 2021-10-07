@@ -75,12 +75,20 @@ public class Door : MonoBehaviour {
     {
         // TO-DO 3: No hacemos nada si la puerta está abriéndose o cerrándose
 
+        m_remainingTime = Mathf.Max(m_remainingTime - Time.deltaTime, 0.0f);
+        if (m_remainingTime > 0.0f)
+        {
+            return;
+        }
+
+
         // TO-DO 2: Detectamos cambios de estado según el estado de la puerta y según loq ue nos dice la variable m_playerInside
 
         if (DoorState == State.CLOSED)
         {
             if (m_playerInside)
             {
+                m_remainingTime = animationDuration;
                 m_state = State.OPEN;
                 m_animation.Play(m_open);
                 m_audio.Play();
@@ -90,6 +98,7 @@ public class Door : MonoBehaviour {
         {
             if (!m_playerInside)
             {
+                m_remainingTime = animationDuration;
                 m_state = State.CLOSED;
                 m_animation.Play(m_close);
                 m_audio.Play();

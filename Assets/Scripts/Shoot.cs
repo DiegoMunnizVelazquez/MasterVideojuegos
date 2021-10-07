@@ -92,6 +92,8 @@ public class Shoot : MonoBehaviour
         //  ## TO-DO 4 - Actualizar el contador m_TimeSinceLastShot ## 
         // Para ello, habrá que sumarle el tiempo de ejecución del anterior frame
 
+        m_TimeSinceLastShot += Time.deltaTime;
+
 
         if (GetFireButton())
 		{
@@ -100,14 +102,28 @@ public class Shoot : MonoBehaviour
                 // ## TO-DO 5 - En función de si hay proyectil o no, usar la función de disparo
                 // con proyectil, o la de disparo con rayo ## 
 
-				ShootProjectile();
+                if (m_projectile != null)
+                {
+                    ShootProjectile();
+
+                } else
+                {
+                    ShootRay();
+                }
+
                 // ## TO-DO 6 - Reiniciar el contador m_TimeSinceLastShot ## 
+                m_TimeSinceLastShot = 0;
 
             }
 
             if (!m_IsShooting)
             {
                 m_IsShooting = true;
+                if (audioSource != null)
+                {
+                audioSource.clip = m_ShootAudio;
+                audioSource.Play();
+                }
 
                 // ## TO-DO 7 Poner sonido de disparo.
 
@@ -118,6 +134,11 @@ public class Shoot : MonoBehaviour
             m_IsShooting = false;
 
             // ## TO-DO 8 Parar sonido de disparo.
+            if (audioSource != null)
+            {
+            audioSource.Stop();
+
+            }
 
         }
 
@@ -132,7 +153,7 @@ public class Shoot : MonoBehaviour
 	private bool CanShoot()
 	{
         //  ## TO-DO 8 - Comprobar si puedo disparar #
-        return true;
+        return m_TimeSinceLastShot >= m_TimeBetweenShots;
 	}
 	
     /// <summary>
@@ -185,7 +206,17 @@ public class Shoot : MonoBehaviour
         // 1.- Lanzar un rayo utlizando para ello el módulo de física -> pista Physics.Ra...
         // 2.- Aplicar una fuerza en el punto de impacto.
         // 3.- Colocar particulas de chispas en el punto de impacto -> pista Instanciamos pero no nos preocupasmo del destroy porque el asset puede autodestruirse (componente particle animator).
-        
+
+       if( Physics.Raycast(m_ShootPoint.position, m_ShootPoint.forward, out RaycastHit hitInfo, m_ShootRange))
+        {
+            Rigidbody rb = hitInfo.collider.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.AddExplosionForce(m_ShootForce, hitInfo.point, 1.0f);
+            }
+            Instantiate(m_Sparkles, hitInfo.point, Quaternion.identity);
+        }
+
     }
 
     //## TO-DO 3 Mostrar un puntero laser con la dirección de disparo.

@@ -34,11 +34,12 @@ public class Health : MonoBehaviour {
     {
 
         ///  // ## TO-DO 1 si la salud inicial es menor que 0 enviar mensaje void OnDeath() por si a alguien le interesa..
-        
+        Debug.Log("Daño");
+
         m_CurrentHealth -= amount;
         if (m_CurrentHealth <= 0) 
         {
-
+            Debug.Log("Muerte");
         }
 
 
